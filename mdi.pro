@@ -13,10 +13,12 @@ INCLUDEPATH += .
 HEADERS += \
   main-window.hh \
   note.hh \
-    book.hh
+    db-common.hh \
+    notestore.hh
 
 SOURCES += \
   main-window.cc \
   main.cc \
   note.cc \
-    book.cc
+    db-common.cc \
+    notestore.cc

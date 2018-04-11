@@ -2,6 +2,9 @@
 #include "main-window.hh"
 #include "note.hh"
 
+namespace ik {
+namespace app {
+
 MainWindow::MainWindow() {
 
   buildUI();
@@ -49,7 +52,7 @@ void MainWindow::onNewNoteClick() {
 
   m_mdi_area->addSubWindow(note);
   note->show();
-
-  //QTextEdit *editor = new QTextEdit();
-  //editor->
 }
+
+} // namespce app
+} // namespace ik

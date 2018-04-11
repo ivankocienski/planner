@@ -1,6 +1,9 @@
 
 #include "note.hh"
 
+namespace ik {
+namespace app {
+
 Note::Note() : QMdiSubWindow() {
 
   setWindowTitle("Note");
@@ -8,3 +11,5 @@ Note::Note() : QMdiSubWindow() {
   setAttribute(Qt::WA_DeleteOnClose);
 }
 
+}
+}

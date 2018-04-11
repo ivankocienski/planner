@@ -3,6 +3,9 @@
 
 #include <QtWidgets>
 
+namespace ik {
+namespace app {
+
 class Note : public QMdiSubWindow {
   Q_OBJECT
 
@@ -13,3 +16,6 @@ class Note : public QMdiSubWindow {
     Note();
 
 };
+
+}
+}
