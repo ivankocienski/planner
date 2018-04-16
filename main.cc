@@ -5,11 +5,15 @@
 #include "db-common.hh"
 
 int main( int argc, char ** argv ) {
-  QApplication app( argc, argv );
 
-  ik::app::MainWindow win;
+    QCoreApplication::setOrganizationName("iksoft");
+    QCoreApplication::setApplicationName("Planner");
 
-  ik::db::init_book_connection();
+    QApplication app( argc, argv );
 
-  return app.exec();
+    ik::db::init_book_connection();
+
+    ik::app::MainWindow win;
+
+    return app.exec();
 }
