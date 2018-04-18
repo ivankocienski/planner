@@ -12,7 +12,6 @@ namespace app {
 
 Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
 
-    setWindowTitle(m_store.title());
     setAttribute(Qt::WA_DeleteOnClose);
 
     build_ui();
@@ -23,6 +22,9 @@ Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
     move(m_store.xpos(), m_store.ypos());
 
     connect_signals();
+
+    // load widget values from NoteStore
+    on_edit_changed();
 }
 
 Note::Note() : QMdiSubWindow() {
@@ -77,8 +79,9 @@ void Note::create_in_store(unsigned int stack_pos) {
                 pos().y(),
                 size().width(),
                 size().height(),
-                "Note",
-                stack_pos);
+                "New Note",
+                stack_pos,
+                "");
 }
 
 void Note::remove_from_store() {
@@ -121,13 +124,12 @@ void Note::on_edit_button() {
 
     connect(editor, SIGNAL(update_triggered()),
             this, SLOT(on_edit_changed()));
-
-    editor->show();
 }
 
 void Note::on_edit_changed() {
 
     setWindowTitle(m_store.title());
+    m_edit->setText(m_store.body_text());
 }
 
 }

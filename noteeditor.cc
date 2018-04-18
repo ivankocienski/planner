@@ -59,11 +59,13 @@ void NoteEditor::connect_signals() {
 void NoteEditor::set_values() {
 
     m_title_edit->setText(m_store.title());
+    m_body_edit->document()->setPlainText(m_store.body_text());
 }
 
 void NoteEditor::capture_values() {
 
     m_store.set_title(m_title_edit->text());
+    m_store.set_body_text(m_body_edit->document()->toPlainText());
 }
 
 void NoteEditor::on_save_button() {

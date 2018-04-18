@@ -16,9 +16,10 @@ private:
     int m_width { 0 };
     int m_height { 0 };
     QString m_title;
+    QString m_body_text;
     unsigned int m_stack_order { 0 };
 
-    NoteStore(int, int, int, int, int, const QString&, unsigned int );
+    NoteStore(int, int, int, int, int, const QString&, unsigned int, const QString& );
 
 public:
 
@@ -35,14 +36,16 @@ public:
     int height() const;
     unsigned int stack_order() const;
     QString title() const;
+    QString body_text() const;
 
     void set_pos(int, int);
     void set_size(int, int);
     void set_stack_order(unsigned int);
     void set_title(const QString&);
+    void set_body_text(const QString&);
 
     static NoteStore find_by_id(int);
-    static NoteStore create(int, int, int, int, const QString &, unsigned int);
+    static NoteStore create(int, int, int, int, const QString &, unsigned int, const QString &);
     static int count();
     static void migrate();
     static QList<NoteStore> find_all();
