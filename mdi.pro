@@ -14,11 +14,13 @@ HEADERS += \
   main-window.hh \
   note.hh \
     db-common.hh \
-    notestore.hh
+    notestore.hh \
+    noteeditor.hh
 
 SOURCES += \
   main-window.cc \
   main.cc \
   note.cc \
     db-common.cc \
-    notestore.cc
+    notestore.cc \
+    noteeditor.cc

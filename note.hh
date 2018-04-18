@@ -14,14 +14,16 @@ Q_OBJECT
 private:
 
     db::NoteStore m_store;
-
+    QTextEdit *m_edit;
+    QPushButton *m_edit_button;
+    
 private:
+    void build_ui();
+    void connect_signals();
 
     void create_in_store(unsigned int);
     void remove_from_store();
 
-    void moveEvent(QMoveEvent*);
-    void resizeEvent(QResizeEvent*);
     void closeEvent(QCloseEvent *);
 
 public:
@@ -34,6 +36,10 @@ public:
     static void create(QMdiArea*);
     static void create(QMdiArea*, const db::NoteStore&);
 
+private slots:
+
+    void on_edit_button();
+    void on_edit_changed();
 };
 
 }

@@ -1,5 +1,6 @@
 
 #include "note.hh"
+#include "noteeditor.hh"
 
 namespace ik {
 namespace app {
@@ -11,21 +12,48 @@ namespace app {
 
 Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
 
-  setWindowTitle("Note");
-  setWidget(new QTextEdit());
-  setAttribute(Qt::WA_DeleteOnClose);
+    setWindowTitle(m_store.title());
+    setAttribute(Qt::WA_DeleteOnClose);
 
-  resize(m_store.width(),
-         m_store.height());
+    build_ui();
 
-  move(m_store.xpos(), m_store.ypos());
+    resize(m_store.width(),
+           m_store.height());
+
+    move(m_store.xpos(), m_store.ypos());
+
+    connect_signals();
 }
 
 Note::Note() : QMdiSubWindow() {
 
-  setWindowTitle("Note");
-  setWidget(new QTextEdit());
-  setAttribute(Qt::WA_DeleteOnClose);
+    setWindowTitle("New Note");
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    build_ui();
+    connect_signals();
+}
+
+void Note::build_ui() {
+    m_edit = new QTextEdit();
+    m_edit->setReadOnly(true);
+
+    m_edit_button = new QPushButton("Edit");
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(m_edit);
+    layout->addWidget(m_edit_button);
+
+    QWidget *widget = new QWidget();
+    widget->setLayout(layout);
+
+    setWidget(widget);
+}
+
+void Note::connect_signals() {
+
+    connect(m_edit_button, SIGNAL(clicked()),
+            this, SLOT(on_edit_button()));
 }
 
 void Note::save_to_store(unsigned int stack_pos) {
@@ -57,16 +85,6 @@ void Note::remove_from_store() {
     m_store.delete_record();
 }
 
-void Note::moveEvent(QMoveEvent *e) {
-    QMdiSubWindow::moveEvent(e);
-    //save_to_store();
-}
-
-void Note::resizeEvent(QResizeEvent *e) {
-    QMdiSubWindow::resizeEvent(e);
-    //save_to_store();
-}
-
 void Note::closeEvent(QCloseEvent *ev) {
     qDebug() << "Window close";
 
@@ -87,12 +105,29 @@ void Note::create(QMdiArea *mdi_area) {
     note->create_in_store(windows.size());
 }
 
+// static
 void Note::create(QMdiArea *mdi_area, const db::NoteStore &ns) {
 
     Note * note = new Note(ns);
 
     mdi_area->addSubWindow(note);
     note->show();
+}
+
+void Note::on_edit_button() {
+    qDebug() << "edit button clicked";
+
+    NoteEditor *editor = new NoteEditor(this, m_store);
+
+    connect(editor, SIGNAL(update_triggered()),
+            this, SLOT(on_edit_changed()));
+
+    editor->show();
+}
+
+void Note::on_edit_changed() {
+
+    setWindowTitle(m_store.title());
 }
 
 }

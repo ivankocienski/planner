@@ -39,6 +39,7 @@ public:
     void set_pos(int, int);
     void set_size(int, int);
     void set_stack_order(unsigned int);
+    void set_title(const QString&);
 
     static NoteStore find_by_id(int);
     static NoteStore create(int, int, int, int, const QString &, unsigned int);

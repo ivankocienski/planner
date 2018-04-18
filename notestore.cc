@@ -44,6 +44,11 @@ void NoteStore::set_stack_order(unsigned int o) {
     m_dirty = true;
 }
 
+void NoteStore::set_title(const QString &t) {
+    m_title = t;
+    m_dirty = true;
+}
+
 void NoteStore::save() {
 
     if(m_dirty && m_valid) {
