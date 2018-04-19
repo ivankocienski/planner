@@ -13,6 +13,9 @@ namespace app {
 Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
 
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlag(Qt::WindowMaximizeButtonHint, false);
+    setWindowFlag(Qt::WindowMinimizeButtonHint, false);
+    setWindowFlag(Qt::WindowShadeButtonHint, true);
 
     build_ui();
 
