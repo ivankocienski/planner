@@ -15,7 +15,6 @@ private:
 
     db::NoteStore m_store;
     QTextEdit *m_edit;
-    QPushButton *m_edit_button;
     
 private:
     void build_ui();
@@ -31,15 +30,15 @@ public:
     Note();
     Note(const db::NoteStore&);
 
+    db::NoteStore & store();
+
     void save_to_store(unsigned int);
 
     static void create(QMdiArea*);
     static void create(QMdiArea*, const db::NoteStore&);
 
-private slots:
-
-    void on_edit_button();
-    void on_edit_changed();
+public slots:
+    void update_ui_values_from_store();
 };
 
 }

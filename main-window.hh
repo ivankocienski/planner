@@ -14,6 +14,7 @@ private:
     QMdiArea *m_mdi_area;
     QAction *m_new_action;
     QAction *m_exit_action;
+    QAction *m_edit_action;
 
 private:
 
@@ -33,6 +34,7 @@ public:
 private slots:
 
     void onNewNoteClick();
+    void onEditNoteClick();
 };
 
 }

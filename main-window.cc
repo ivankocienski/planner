@@ -1,6 +1,7 @@
 
 #include "main-window.hh"
 #include "note.hh"
+#include "noteeditor.hh"
 
 namespace ik {
 namespace app {
@@ -39,15 +40,21 @@ void MainWindow::buildUI() {
   m_new_action = new QAction("New");
   m_new_action->setIcon(QIcon::fromTheme("document-new"));
 
+  m_edit_action = new QAction("Edit");
+  m_edit_action->setIcon(QIcon::fromTheme("document-properties"));
+
   m_exit_action = new QAction("Exit");
   m_exit_action->setIcon(QIcon::fromTheme("application-exit"));
 
   menu->addAction(m_new_action);
+  menu->addAction(m_edit_action);
   menu->addSeparator();
   menu->addAction(m_exit_action);
 
   QToolBar *toolbar = addToolBar("Basic toolbar");
   toolbar->addAction(m_new_action);
+  toolbar->addAction(m_edit_action);
+  toolbar->addSeparator();
   toolbar->addAction(m_exit_action);
 
   m_mdi_area = new QMdiArea();
@@ -60,8 +67,12 @@ void MainWindow::connectHandlers() {
   connect(m_new_action, SIGNAL(triggered()),
       this, SLOT(onNewNoteClick()));
 
+  connect(m_edit_action, SIGNAL(triggered()),
+          this, SLOT(onEditNoteClick()));
+
   connect(m_exit_action, SIGNAL(triggered()),
           this, SLOT(close()));
+
 }
 
 void MainWindow::restoreWindows() {
@@ -93,11 +104,21 @@ void MainWindow::onNewNoteClick() {
   qInfo() << "note clicked";
 
   Note::create(m_mdi_area);
+}
 
-  //Note *note = new Note();
+void MainWindow::onEditNoteClick() {
+    qInfo() << "edit note";
 
-  //m_mdi_area->addSubWindow(note);
-  //note->show();
+    Note *note = reinterpret_cast<Note *>(m_mdi_area->currentSubWindow());
+
+    if(note != nullptr) {
+        NoteEditor *editor = new NoteEditor(
+                    this,
+                    note->store());
+
+        connect(editor, SIGNAL(update_triggered()),
+                note, SLOT(update_ui_values_from_store()));
+    }
 }
 
 } // namespce app
