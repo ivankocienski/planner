@@ -24,3 +24,6 @@ SOURCES += \
     db-common.cc \
     notestore.cc \
     noteeditor.cc
+
+RESOURCES += \
+    application.qrc

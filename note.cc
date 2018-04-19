@@ -17,6 +17,8 @@ Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
     setWindowFlag(Qt::WindowMinimizeButtonHint, false);
     setWindowFlag(Qt::WindowShadeButtonHint, true);
 
+    setWindowIcon(QIcon(":/icons/note.png"));
+
     build_ui();
 
     resize(m_store.width(),
