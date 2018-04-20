@@ -15,7 +15,8 @@ private:
 
     db::NoteStore m_store;
     QTextEdit *m_edit;
-    
+    QLabel *m_modified;
+
 private:
     void build_ui();
     void connect_signals();

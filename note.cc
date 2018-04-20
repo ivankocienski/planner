@@ -50,7 +50,16 @@ void Note::build_ui() {
     m_edit = new QTextEdit();
     m_edit->setReadOnly(true);
 
-    setWidget(m_edit);
+    m_modified = new QLabel();
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(m_edit);
+    layout->addWidget(m_modified);
+
+    QWidget *wdg = new QWidget();
+    wdg->setLayout(layout);
+
+    setWidget(wdg);
 }
 
 void Note::connect_signals() {
@@ -119,6 +128,13 @@ void Note::update_ui_values_from_store() {
 
     setWindowTitle(m_store.title());
     m_edit->setText(m_store.body_text());
+
+    QDateTime dt = m_store.modified();
+
+    QString time_string = dt.
+            toString("h:m' 'ap' on 'd' 'MMMM', 'yyyy");
+
+    m_modified->setText(time_string);
 }
 
 }

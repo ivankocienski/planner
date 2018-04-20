@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QDateTime>
 
 namespace ik {
 namespace db {
@@ -18,8 +19,20 @@ private:
     QString m_title;
     QString m_body_text;
     unsigned int m_stack_order { 0 };
+    QDateTime m_modified;
 
-    NoteStore(int, int, int, int, int, const QString&, unsigned int, const QString& );
+    NoteStore(
+            int,
+            int,
+            int,
+            int,
+            int,
+            const QString&,
+            unsigned int,
+            const QString&,
+            const QDateTime&);
+
+    void touch_modified();
 
 public:
 
@@ -37,6 +50,7 @@ public:
     unsigned int stack_order() const;
     QString title() const;
     QString body_text() const;
+    QDateTime modified() const;
 
     void set_pos(int, int);
     void set_size(int, int);
