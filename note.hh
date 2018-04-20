@@ -19,6 +19,7 @@ private:
 
 private:
     void build_ui();
+    void configure_window();
     void connect_signals();
 
     void create_in_store(unsigned int);

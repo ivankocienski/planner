@@ -20,6 +20,7 @@ private:
     QString m_body_text;
     unsigned int m_stack_order { 0 };
     QDateTime m_modified;
+    bool m_is_shaded { false };
 
     NoteStore(
             int,
@@ -30,7 +31,8 @@ private:
             const QString&,
             unsigned int,
             const QString&,
-            const QDateTime&);
+            const QDateTime&,
+            bool);
 
     void touch_modified();
 
@@ -51,12 +53,14 @@ public:
     QString title() const;
     QString body_text() const;
     QDateTime modified() const;
+    bool is_shaded() const;
 
     void set_pos(int, int);
     void set_size(int, int);
     void set_stack_order(unsigned int);
     void set_title(const QString&);
     void set_body_text(const QString&);
+    void set_shaded(bool);
 
     static NoteStore find_by_id(int);
     static NoteStore create(int, int, int, int, const QString &, unsigned int, const QString &);

@@ -4,6 +4,8 @@
 namespace ik {
 namespace db {
 
+// this is probably not the best way of doing DB stuff.
+3
 NoteStore::NoteStore() {
 
     // set to now
@@ -19,7 +21,8 @@ NoteStore::NoteStore(
         const QString &t,
         unsigned int o,
         const QString &b,
-        const QDateTime &d) :
+        const QDateTime &d,
+        bool s) :
     m_valid(true),
     m_dirty(true),
     m_id(id),
@@ -30,7 +33,8 @@ NoteStore::NoteStore(
     m_title(t),
     m_body_text(b),
     m_stack_order(o),
-    m_modified(d) {
+    m_modified(d),
+    m_is_shaded(s) {
 
     m_modified.setTimeSpec(Qt::UTC);
 }
@@ -45,6 +49,7 @@ int NoteStore::xpos() const       { return m_xpos; }
 int NoteStore::ypos() const       { return m_ypos; }
 int NoteStore::width() const      { return m_width; }
 int NoteStore::height() const     { return m_height; }
+bool NoteStore::is_shaded() const { return m_is_shaded; }
 
 QString NoteStore::title() const            { return m_title; }
 QString NoteStore::body_text() const        { return m_body_text; }
@@ -82,6 +87,11 @@ void NoteStore::set_body_text(const QString &t) {
     touch_modified();
 }
 
+void NoteStore::set_shaded(bool s) {
+    m_is_shaded = s;
+    m_dirty = true;
+}
+
 void NoteStore::save() {
 
     if(m_dirty && m_valid) {
@@ -90,7 +100,7 @@ void NoteStore::save() {
         QString sql_query =
                 "UPDATE notes "
                 "SET xpos=?, ypos=?, width=?, height=?, "
-                "title=?, stack_order=?, body_text=?, modified_at=? "
+                "title=?, stack_order=?, body_text=?, modified_at=?, is_shaded=? "
                 "WHERE id=?";
 
         QSqlQuery query(sql_query, db_handle);
@@ -103,9 +113,10 @@ void NoteStore::save() {
         query.bindValue(5, m_stack_order);
         query.bindValue(6, m_body_text);
         query.bindValue(7, m_modified.toString(Qt::ISODate));
+        query.bindValue(8, m_is_shaded ? "1" : "0");
 
         // where
-        query.bindValue(8, m_id);
+        query.bindValue(9, m_id);
 
         qInfo() << "exec " << query.lastQuery();
         query.exec();
@@ -153,7 +164,8 @@ QList<NoteStore> NoteStore::find_all() {
     QList<NoteStore> list;
 
     QString sql_query =
-            "SELECT id, xpos, ypos, width, height, title, stack_order, body_text, modified_at "
+            "SELECT id, xpos, ypos, width, height, "
+            "title, stack_order, body_text, modified_at, is_shaded "
             "FROM notes "
             "ORDER BY stack_order";
 
@@ -178,8 +190,19 @@ QList<NoteStore> NoteStore::find_all() {
         unsigned int order = query.value(6).toUInt();
         QString body_text = query.value(7).toString();
         QDateTime modified = query.value(8).toDateTime();
+        bool shaded = (query.value(9).toInt() == 1);
 
-        list << NoteStore(id, xpos, ypos, width, height, title, order, body_text, modified);
+        list << NoteStore(
+                    id,
+                    xpos,
+                    ypos,
+                    width,
+                    height,
+                    title,
+                    order,
+                    body_text,
+                    modified,
+                    shaded);
     }
 
     return list;
@@ -189,7 +212,7 @@ NoteStore NoteStore::find_by_id(int id) {
 
     QString sql_query =
             "SELECT "
-            "xpos, ypos, width, height, title, stack_order, body_text, modified_at "
+            "xpos, ypos, width, height, title, stack_order, body_text, modified_at, is_shaded "
             "FROM notes "
             "WHERE id=?";
 
@@ -214,8 +237,19 @@ NoteStore NoteStore::find_by_id(int id) {
     unsigned int order = query.value(5).toUInt();
     QString body_text = query.value(6).toString();
     QDateTime modified = query.value(7).toDateTime();
+    bool shaded = (query.value(8).toInt() == 1);
 
-    return NoteStore(id, xpos, ypos, width, height, title, order, body_text, modified);
+    return NoteStore(
+                id,
+                xpos,
+                ypos,
+                width,
+                height,
+                title,
+                order,
+                body_text,
+                modified,
+                shaded);
 }
 
 void NoteStore::migrate() {
@@ -228,7 +262,7 @@ void NoteStore::migrate() {
                 " (id INTEGER PRIMARY KEY, xpos INTEGER NOT NULL, ypos INTEGER NOT NULL,"
                 " width INTEGER NOT NULL, height INTEGER NOT NULL, title VARCHAR NOT NULL "
                 " stack_order INTEGER NOT NULL, body_text TEXT NOT NULL DEFAULT \"\""
-                " modified_at DATETIME NOT NULL)";
+                " modified_at DATETIME NOT NULL, is_shaded INTEGER DEFAULT 0)";
 
         QSqlQuery query(sql_string, db_handle);
         qInfo() << "exec " << query.lastQuery();
@@ -251,8 +285,8 @@ NoteStore NoteStore::create(
 
     QString sql_string =
             "INSERT INTO notes "
-            "(xpos, ypos, width, height, title, stack_order, body_text, modified_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "(xpos, ypos, width, height, title, stack_order, body_text, modified_at, is_shaded) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     QDateTime d = QDateTime::currentDateTime();
     d.setTimeSpec(Qt::UTC);
@@ -267,6 +301,7 @@ NoteStore NoteStore::create(
     query.bindValue(5, o); // stack order
     query.bindValue(6, b); // body text
     query.bindValue(7, d.toString(Qt::ISODate)); // body text
+    query.bindValue(8, 0);
 
     qInfo() << "exec " << query.lastQuery();
     query.exec();
@@ -278,7 +313,7 @@ NoteStore NoteStore::create(
     }
 
     int id = query.lastInsertId().toInt();
-    return NoteStore(id, x, y, w, h, t, o, b, d);
+    return NoteStore(id, x, y, w, h, t, o, b, d, 0);
 }
 
 int NoteStore::count() {

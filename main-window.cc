@@ -35,31 +35,34 @@ void MainWindow::save_window_state() {
 
 void MainWindow::buildUI() {
 
-  QMenu *menu = menuBar()->addMenu("menu");
+    QMenu *menu = menuBar()->addMenu("menu");
 
-  m_new_action = new QAction("New");
-  m_new_action->setIcon(QIcon::fromTheme("document-new"));
+    m_new_action = new QAction("New");
+    m_new_action->setIcon(QIcon::fromTheme("document-new"));
 
-  m_edit_action = new QAction("Edit");
-  m_edit_action->setIcon(QIcon::fromTheme("document-properties"));
+    m_edit_action = new QAction("Edit");
+    m_edit_action->setIcon(QIcon::fromTheme("document-properties"));
 
-  m_exit_action = new QAction("Exit");
-  m_exit_action->setIcon(QIcon::fromTheme("application-exit"));
+    m_exit_action = new QAction("Exit");
+    m_exit_action->setIcon(QIcon::fromTheme("application-exit"));
 
-  menu->addAction(m_new_action);
-  menu->addAction(m_edit_action);
-  menu->addSeparator();
-  menu->addAction(m_exit_action);
+    menu->addAction(m_new_action);
+    menu->addAction(m_edit_action);
+    menu->addSeparator();
+    menu->addAction(m_exit_action);
 
-  QToolBar *toolbar = addToolBar("Basic toolbar");
-  toolbar->addAction(m_new_action);
-  toolbar->addAction(m_edit_action);
-  toolbar->addSeparator();
-  toolbar->addAction(m_exit_action);
+    QToolBar *toolbar = addToolBar("Basic toolbar");
+    toolbar->addAction(m_new_action);
+    toolbar->addAction(m_edit_action);
+    toolbar->addSeparator();
+    toolbar->addAction(m_exit_action);
 
-  m_mdi_area = new QMdiArea();
+    m_mdi_area = new QMdiArea();
 
-  setCentralWidget(m_mdi_area); 
+    QBrush back_brush(QColor(43, 188, 238));
+    m_mdi_area->setBackground(back_brush);
+
+    setCentralWidget(m_mdi_area);
 }
 
 void MainWindow::connectHandlers() {

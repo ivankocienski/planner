@@ -12,13 +12,7 @@ namespace app {
 
 Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
 
-    setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlag(Qt::WindowMaximizeButtonHint, false);
-    setWindowFlag(Qt::WindowMinimizeButtonHint, false);
-    setWindowFlag(Qt::WindowShadeButtonHint, true);
-
-    setWindowIcon(QIcon(":/icons/note.png"));
-
+    configure_window();
     build_ui();
 
     resize(m_store.width(),
@@ -30,13 +24,16 @@ Note::Note(const db::NoteStore &ns) : QMdiSubWindow(), m_store(ns) {
 
     // load widget values from NoteStore
     update_ui_values_from_store();
+
+    if(m_store.is_shaded()) {
+        qDebug() << "is shaded";
+        showShaded();
+    }
 }
 
 Note::Note() : QMdiSubWindow() {
 
-    setWindowTitle("New Note");
-    setAttribute(Qt::WA_DeleteOnClose);
-
+    configure_window();
     build_ui();
     connect_signals();
     update_ui_values_from_store();
@@ -62,6 +59,16 @@ void Note::build_ui() {
     setWidget(wdg);
 }
 
+void Note::configure_window() {
+
+    setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlag(Qt::WindowMaximizeButtonHint, false);
+    setWindowFlag(Qt::WindowMinimizeButtonHint, false);
+    setWindowFlag(Qt::WindowShadeButtonHint, true);
+
+    setWindowIcon(QIcon(":/icons/note.png"));
+}
+
 void Note::connect_signals() {
 }
 
@@ -76,6 +83,8 @@ void Note::save_to_store(unsigned int stack_pos) {
                 size().height());
 
     m_store.set_stack_order(stack_pos);
+    m_store.set_shaded(isShaded());
+
     m_store.save();
 }
 
