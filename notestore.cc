@@ -5,7 +5,7 @@ namespace ik {
 namespace db {
 
 // this is probably not the best way of doing DB stuff.
-3
+
 NoteStore::NoteStore() {
 
     // set to now
@@ -118,14 +118,7 @@ void NoteStore::save() {
         // where
         query.bindValue(9, m_id);
 
-        qInfo() << "exec " << query.lastQuery();
-        query.exec();
-
-        if(query.lastError().type() != QSqlError::NoError) {
-            QString message = "Could not insert note: " + query.lastError().text();
-            qFatal(message.toLatin1().constData());
-            return; // oops ?
-        }
+        safe_query_exec(query, "note save");
 
         m_dirty = false;
     }
@@ -142,14 +135,7 @@ void NoteStore::delete_record() {
 
         query.bindValue(0, m_id);
 
-        qInfo() << "exec " << query.lastQuery();
-        query.exec();
-
-        if(query.lastError().type() != QSqlError::NoError) {
-            QString message = "Could not delete note: " + query.lastError().text();
-            qFatal(message.toLatin1().constData());
-            return; // oops ?
-        }
+        safe_query_exec(query, "note delete record");
 
         m_dirty = false;
         m_valid = false;
@@ -170,14 +156,7 @@ QList<NoteStore> NoteStore::find_all() {
             "ORDER BY stack_order";
 
     QSqlQuery query(sql_query, db_handle);
-    qInfo() << "exec " << query.lastQuery();
-    query.exec();
-
-    if(query.lastError().type() != QSqlError::NoError) {
-        QString message = "Could not find notes" + query.lastError().text();
-        qFatal(message.toLatin1().constData());
-        return list;
-    }
+    safe_query_exec(query, "note find_all");
 
     while(query.next()) {
 
@@ -219,13 +198,7 @@ NoteStore NoteStore::find_by_id(int id) {
     QSqlQuery query(sql_query, db_handle);
     query.bindValue(0, id);
 
-    qInfo() << "exec " << query.lastQuery();
-    query.exec();
-
-    if(query.lastError().type() != QSqlError::NoError) {
-        qFatal("Could not find book with ID");
-        return NoteStore();
-    }
+    safe_query_exec(query, "note find_by_id");
 
     query.next();
 
@@ -255,22 +228,15 @@ NoteStore NoteStore::find_by_id(int id) {
 void NoteStore::migrate() {
 
     if(!table_exists("notes")) {
-        qInfo() << "table 'notes' does not exist";
-
         QString sql_string =
-                "CREATE TABLE notes"
+                "CREATE TABLE IF NOT EXISTS notes"
                 " (id INTEGER PRIMARY KEY, xpos INTEGER NOT NULL, ypos INTEGER NOT NULL,"
-                " width INTEGER NOT NULL, height INTEGER NOT NULL, title VARCHAR NOT NULL "
-                " stack_order INTEGER NOT NULL, body_text TEXT NOT NULL DEFAULT \"\""
+                " width INTEGER NOT NULL, height INTEGER NOT NULL, title VARCHAR NOT NULL,"
+                " stack_order INTEGER NOT NULL, body_text TEXT NOT NULL DEFAULT '',"
                 " modified_at DATETIME NOT NULL, is_shaded INTEGER DEFAULT 0)";
 
         QSqlQuery query(sql_string, db_handle);
-        qInfo() << "exec " << query.lastQuery();
-        query.exec();
-
-        if(query.lastError().type() != QSqlError::NoError) {
-            qFatal("Could not create table");
-        }
+        safe_query_exec(query, "migrate note table");
     }
 }
 
@@ -303,14 +269,7 @@ NoteStore NoteStore::create(
     query.bindValue(7, d.toString(Qt::ISODate)); // body text
     query.bindValue(8, 0);
 
-    qInfo() << "exec " << query.lastQuery();
-    query.exec();
-
-    if(query.lastError().type() != QSqlError::NoError) {
-        QString message = "Could not insert note: " + query.lastError().text();
-        qFatal(message.toLatin1().constData());
-        return NoteStore();
-    }
+    safe_query_exec(query, "creating note");
 
     int id = query.lastInsertId().toInt();
     return NoteStore(id, x, y, w, h, t, o, b, d, 0);
@@ -319,16 +278,8 @@ NoteStore NoteStore::create(
 int NoteStore::count() {
 
     QString sql_string = "SELECT count(*) FROM notes";
-
     QSqlQuery query(sql_string, db_handle);
-    qInfo() << "exec " << query.lastQuery();
-    query.exec();
-
-    if(query.lastError().type() != QSqlError::NoError) {
-        qFatal("Could not count table");
-        return -1;
-    }
-
+    safe_query_exec(query, "counting notes");
     query.next();
 
     return query.value(0).toInt();

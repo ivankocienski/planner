@@ -6,29 +6,36 @@ namespace db {
 
 QSqlDatabase db_handle;
 
+void safe_query_exec(QSqlQuery &query, const QString &explanation) {
+
+    qInfo() << "DB exec " << query.lastQuery();
+    query.exec();
+
+    if(query.lastError().type() != QSqlError::NoError) {
+
+        QString message =
+                "FATAL ERROR: " + explanation + " - " + query.lastError().text();
+        qFatal(message.toLatin1().constData());
+    }
+}
+
 bool table_exists(const QString &name) {
 
     QSqlQuery query("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", db_handle);
     query.bindValue(0, name);
-    qInfo() << "exec " << query.lastQuery();
 
-    query.exec();
-    if(query.lastError().type() != QSqlError::NoError) {
-        qFatal("Could not see if table exists");
-        return false;
-    }
+    safe_query_exec(query, "determining if table exists");
 
     query.next();
 
     int count = query.value(0).toInt();
-    qInfo() << "count=" << count;
+    //qInfo() << "count=" << count;
 
     return count == 1;
 }
 
 void init_book_connection() {
     db_handle = QSqlDatabase::addDatabase("QSQLITE");
-    //main_db.addDatabase("data.sqlite3");
     db_handle.setDatabaseName("data.file");
 
     if(db_handle.open()) {

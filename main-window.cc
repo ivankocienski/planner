@@ -33,6 +33,16 @@ void MainWindow::save_window_state() {
     settings.setValue("mainwindow/position", pos());
 }
 
+void MainWindow::save_note_state() {
+    auto windows = m_mdi_area->subWindowList(QMdiArea::StackingOrder);
+    int stack_pos = 0;
+
+    for( auto & it : windows ) {
+        reinterpret_cast<Note *>(it)->save_to_store(stack_pos);
+        stack_pos++;
+    }
+}
+
 void MainWindow::buildUI() {
 
     QMenu *menu = menuBar()->addMenu("menu");
@@ -46,14 +56,19 @@ void MainWindow::buildUI() {
     m_exit_action = new QAction("Exit");
     m_exit_action->setIcon(QIcon::fromTheme("application-exit"));
 
+    m_sync_action = new QAction("Syncronize DB");
+    m_sync_action->setIcon(QIcon::fromTheme("view-refresh"));
+
     menu->addAction(m_new_action);
     menu->addAction(m_edit_action);
+    menu->addAction(m_sync_action);
     menu->addSeparator();
     menu->addAction(m_exit_action);
 
     QToolBar *toolbar = addToolBar("Basic toolbar");
     toolbar->addAction(m_new_action);
     toolbar->addAction(m_edit_action);
+    toolbar->addAction(m_sync_action);
     toolbar->addSeparator();
     toolbar->addAction(m_exit_action);
 
@@ -76,6 +91,9 @@ void MainWindow::connectHandlers() {
   connect(m_exit_action, SIGNAL(triggered()),
           this, SLOT(close()));
 
+  connect(m_sync_action, SIGNAL(triggered()),
+          this, SLOT(onSyncClick()));
+
 }
 
 void MainWindow::restoreWindows() {
@@ -89,16 +107,8 @@ void MainWindow::restoreWindows() {
 
 void MainWindow::closeEvent(QCloseEvent *ev) {
 
-    auto windows = m_mdi_area->subWindowList(QMdiArea::StackingOrder);
-    int stack_pos = 0;
-
-    for( auto & it : windows ) {
-        reinterpret_cast<Note *>(it)->save_to_store(stack_pos);
-        stack_pos++;
-    }
-
+    save_note_state();
     save_window_state();
-
     ev->accept();
 }
 
@@ -122,6 +132,10 @@ void MainWindow::onEditNoteClick() {
         connect(editor, SIGNAL(update_triggered()),
                 note, SLOT(update_ui_values_from_store()));
     }
+}
+
+void MainWindow::onSyncClick() {
+    save_note_state();
 }
 
 } // namespce app

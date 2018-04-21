@@ -15,6 +15,7 @@ private:
     QAction *m_new_action;
     QAction *m_exit_action;
     QAction *m_edit_action;
+    QAction *m_sync_action;
 
 private:
 
@@ -24,6 +25,7 @@ private:
 
     void restore_window_state();
     void save_window_state();
+    void save_note_state();
 
     void closeEvent(QCloseEvent *);
 
@@ -35,6 +37,7 @@ private slots:
 
     void onNewNoteClick();
     void onEditNoteClick();
+    void onSyncClick();
 };
 
 }
