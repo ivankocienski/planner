@@ -36,7 +36,22 @@ bool table_exists(const QString &name) {
 
 void init_book_connection() {
     db_handle = QSqlDatabase::addDatabase("QSQLITE");
-    db_handle.setDatabaseName("data.file");
+
+    QString release;
+
+#if QT_NO_DEBUG
+    release = "live";
+#else
+    release = "debug";
+#endif
+
+    QFileInfo settings_info(QSettings().fileName());
+    QString file_path =
+            settings_info.dir().path() +
+            "/data." + release + ".file";
+
+    qInfo() << "Using database " << file_path;
+    db_handle.setDatabaseName(file_path);
 
     if(db_handle.open()) {
         qInfo() << "Database openned";
